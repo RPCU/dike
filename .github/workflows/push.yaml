@@ -56,4 +56,4 @@ jobs:
           args: release --clean
           workdir: ./
         env:
-          GITHUB_TOKEN: ${{ secrets.PUBLISHER_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PUBLISHER_TOKEN || secrets.GITHUB_TOKEN }}
