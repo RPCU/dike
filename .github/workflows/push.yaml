@@ -3,23 +3,23 @@ on:
   workflow_dispatch:
   push:
     tags:
-      - '*.*.*'
+      - "*.*.*"
 permissions:
   contents: write
 jobs:
   buildpush:
-    runs-on: 'ubuntu-latest'
+    runs-on: "ubuntu-latest"
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - uses: cachix/install-nix-action@ba0dd844c9180cbf77aa72a116d6fbc515d0e87b # v27
         with:
           nix_path: nixpkgs=channel:nixos-unstable
-      - name: 'Set up skopeo'
+      - name: "Set up skopeo"
         uses: warjiang/setup-skopeo@main
         with:
           version: latest
-      - name: 'Sync images'
+      - name: "Sync images"
         env:
           DOCKERHUB_USER: ${{ secrets.REGISTRY_USER }}
           DOCKERHUB_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
@@ -44,7 +44,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.25.0'
+          go-version: "1.25.0"
       - uses: cachix/install-nix-action@ba0dd844c9180cbf77aa72a116d6fbc515d0e87b # v27
         with:
           nix_path: nixpkgs=channel:nixos-unstable
@@ -52,8 +52,8 @@ jobs:
         uses: goreleaser/goreleaser-action@v6
         with:
           distribution: goreleaser
-          version: '~> v2'
+          version: "~> v2"
           args: release --clean
           workdir: ./
         env:
-          GITHUB_TOKEN: ${{ secrets.PUBLISHER_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PUBLISHER_TOKEN || secrets.GITHUB_TOKEN }}
