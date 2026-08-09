@@ -28,3 +28,11 @@ go.work
 
 # Kubeconfig might contain secrets
 *.kubeconfig
+
+# Nix & Devenv
+.devenv/
+.direnv/
+result
+result-*
+*.tar
+
