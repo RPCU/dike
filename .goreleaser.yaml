@@ -24,8 +24,8 @@ builds:
 
 dockers:
   - image_templates:
-      - "ghcr.io/{{ .Env.GITHUB_REPOSITORY_OWNER }}/dike:{{ .Version }}"
-      - "ghcr.io/{{ .Env.GITHUB_REPOSITORY_OWNER }}/dike:latest"
+      - "zot.rpcu.io/public/dike:{{ .Version }}"
+      - "zot.rpcu.io/public/dike:latest"
     dockerfile: Dockerfile.goreleaser
     use: buildx
     build_flag_templates:
