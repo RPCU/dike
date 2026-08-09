@@ -98,17 +98,31 @@ func (c *Checker) execInPod(ctx context.Context, namespace, podName string, comm
 	req := c.clientset.CoreV1().RESTClient().Post().Resource("pods").Name(podName).Namespace(namespace).SubResource("exec")
 
 	req.VersionedParams(&corev1.PodExecOptions{Command: command, Stdout: true, Stderr: true}, scheme.ParameterCodec)
-	executor, err := remotecommand.NewSPDYExecutor(c.restConfig, "POST", req.URL())
-	if err != nil {
-		return "", fmt.Errorf("creating executor for pod %s: %w", podName, err)
+
+	execURL := req.URL()
+
+	wsExecutor, wsErr := remotecommand.NewWebSocketExecutor(c.restConfig, "POST", execURL.String())
+	spdyExecutor, spdyErr := remotecommand.NewSPDYExecutor(c.restConfig, "POST", execURL)
+
+	var executor remotecommand.Executor
+	if wsErr == nil && spdyErr == nil {
+		executor, _ = remotecommand.NewFallbackExecutor(wsExecutor, spdyExecutor, func(err error) bool {
+			return err != nil
+		})
+	} else if wsErr == nil {
+		executor = wsExecutor
+	} else if spdyErr == nil {
+		executor = spdyExecutor
+	} else {
+		return "", fmt.Errorf("creating executor for pod %s: ws err: %v, spdy err: %v", podName, wsErr, spdyErr)
 	}
+
 	var stdout, stderr bytes.Buffer
-	err = executor.StreamWithContext(ctx, remotecommand.StreamOptions{Stdout: &stdout, Stderr: &stderr})
+	err := executor.StreamWithContext(ctx, remotecommand.StreamOptions{Stdout: &stdout, Stderr: &stderr})
 	if err != nil {
 		return "", fmt.Errorf("exec in pod %s failed (stderr: %s): %w", podName, stderr.String(), err)
 	}
 	return stdout.String(), nil
-
 }
 
 // parseServiceList parses the JSON output of `cilium-dbg service list -o json`
