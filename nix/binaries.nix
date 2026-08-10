@@ -32,7 +32,7 @@ pkgs.buildGoModule {
     "-X main.version=${version}"
   ];
 
-  vendorHash = "sha256-cbleaqExozxS7Ba1jPrZknat+KDYzgrPV93myrFvChY=";
+  vendorHash = "sha256-2ONAzHLGxd++hSdo6zGrWuRAmTWPea7MnAAaGrLCmw4=";
 
   doCheck = false;
 

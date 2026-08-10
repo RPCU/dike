@@ -38,12 +38,15 @@ type LRPReconciler struct {
 	RESTConfig *rest.Config
 }
 
-// +kubebuilder:rbac:groups=cilium.io,resources=ciliumlocalredirectpolicies,verbs=get;list;watch;update;patch
-// +kubebuilder:rbac:groups="",resources=pods,verbs=get;list;watch;delete
-// +kubebuilder:rbac:groups="",resources=pods/exec,verbs=create;get
-// +kubebuilder:rbac:groups="",resources=nodes;namespaces;services,verbs=get;list;watch
-// +kubebuilder:rbac:groups=coordination.k8s.io,resources=leases,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups="",resources=events,verbs=create;patch
+// NewLRPReconciler creates a new LRPReconciler bound to the given tenant
+// cluster client and rest config.
+func NewLRPReconciler(c client.Client, clientset kubernetes.Interface, restConfig *rest.Config) *LRPReconciler {
+	return &LRPReconciler{
+		Client:     c,
+		Clientset:  clientset,
+		RESTConfig: restConfig,
+	}
+}
 
 func (r *LRPReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := log.FromContext(ctx)

@@ -7,55 +7,16 @@ rules:
 - apiGroups:
   - ""
   resources:
-  - events
-  verbs:
-  - create
-  - patch
-- apiGroups:
-  - ""
-  resources:
-  - namespaces
-  - nodes
-  - services
+  - secrets
   verbs:
   - get
   - list
   - watch
 - apiGroups:
-  - ""
+  - cluster.x-k8s.io
   resources:
-  - pods
-  verbs:
-  - delete
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - pods/exec
-  verbs:
-  - create
-  - get
-- apiGroups:
-  - cilium.io
-  resources:
-  - ciliumlocalredirectpolicies
+  - clusters
   verbs:
   - get
   - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - coordination.k8s.io
-  resources:
-  - leases
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
   - watch
