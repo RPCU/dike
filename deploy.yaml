@@ -16,21 +16,19 @@ kind: ClusterRole
 metadata:
   name: dike-manager-role
 rules:
-  - apiGroups: ["cilium.io"]
-    resources: ["ciliumlocalredirectpolicies"]
-    verbs: ["get", "list", "watch", "update", "patch"]
-  - apiGroups: [""]
-    resources: ["pods"]
-    verbs: ["get", "list", "watch", "delete"]
-  - apiGroups: [""]
-    resources: ["pods/exec"]
-    verbs: ["create", "get"]
-  - apiGroups: [""]
-    resources: ["nodes", "namespaces", "services"]
+  # Read CAPI Cluster objects for tenant discovery
+  - apiGroups: ["cluster.x-k8s.io"]
+    resources: ["clusters"]
     verbs: ["get", "list", "watch"]
+  # Read kubeconfig Secrets
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "list", "watch"]
+  # Leader election
   - apiGroups: ["coordination.k8s.io"]
     resources: ["leases"]
     verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  # Events
   - apiGroups: [""]
     resources: ["events"]
     verbs: ["create", "patch"]
@@ -72,7 +70,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: manager
-          image: zot.rpcu.io/public/dike:v0.1.0
+          image: zot.rpcu.io/public/dike:latest
           imagePullPolicy: IfNotPresent
           command:
             - /manager
