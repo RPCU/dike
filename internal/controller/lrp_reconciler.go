@@ -36,15 +36,20 @@ type LRPReconciler struct {
 	Clientset kubernetes.Interface
 
 	RESTConfig *rest.Config
+
+	// ClusterName identifies the tenant cluster this reconciler is bound to.
+	// Used to generate a unique controller name per tenant.
+	ClusterName string
 }
 
 // NewLRPReconciler creates a new LRPReconciler bound to the given tenant
 // cluster client and rest config.
-func NewLRPReconciler(c client.Client, clientset kubernetes.Interface, restConfig *rest.Config) *LRPReconciler {
+func NewLRPReconciler(c client.Client, clientset kubernetes.Interface, restConfig *rest.Config, clusterName string) *LRPReconciler {
 	return &LRPReconciler{
-		Client:     c,
-		Clientset:  clientset,
-		RESTConfig: restConfig,
+		Client:      c,
+		Clientset:   clientset,
+		RESTConfig:  restConfig,
+		ClusterName: clusterName,
 	}
 }
 
@@ -106,12 +111,16 @@ func (r *LRPReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 }
 
 func (r *LRPReconciler) SetupWithManager(mgr ctrl.Manager) error {
-
 	lrp := &unstructured.Unstructured{}
 	lrp.SetGroupVersionKind(CiliumLRPGVK)
 
+	name := "lrp-reconciler"
+	if r.ClusterName != "" {
+		name = fmt.Sprintf("lrp-reconciler-%s", r.ClusterName)
+	}
+
 	return ctrl.NewControllerManagedBy(mgr).
 		For(lrp).
-		Named("lrp-reconciler").
+		Named(name).
 		Complete(r)
 }

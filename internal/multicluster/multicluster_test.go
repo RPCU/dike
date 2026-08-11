@@ -147,7 +147,7 @@ func TestWatcher_Start_Dummy(t *testing.T) {
 	w := &Watcher{
 		ClusterName: "test/dummy",
 		RESTConfig:  &rest.Config{Host: "https://127.0.0.1:6443"},
-		LRPReconcilerFn: func(c client.Client, cs kubernetes.Interface, rc *rest.Config) *controller.LRPReconciler {
+		LRPReconcilerFn: func(c client.Client, cs kubernetes.Interface, rc *rest.Config, clusterName string) *controller.LRPReconciler {
 			return &controller.LRPReconciler{}
 		},
 	}
