@@ -17,6 +17,7 @@ import (
 	"k8s.io/client-go/rest"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	"github.com/rpcu/dike/internal/cilium"
@@ -117,8 +118,12 @@ func (r *LRPReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		name = fmt.Sprintf("lrp-reconciler-%s", r.ClusterName)
 	}
 
+	skipValidation := true
 	return ctrl.NewControllerManagedBy(mgr).
 		For(lrp).
 		Named(name).
+		WithOptions(controller.Options{
+			SkipNameValidation: &skipValidation,
+		}).
 		Complete(r)
 }
