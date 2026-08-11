@@ -34,6 +34,14 @@ jobs:
           $DOCKERHUB_USER:$DOCKERHUB_PASSWORD \
           docker-archive:oci.tar \
           docker://$DOCKER_IMAGE
+
+          # Also tag as :latest
+          LATEST_IMAGE=$(echo $DOCKER_IMAGE | sed 's/:.*/:latest/')
+          echo "Pushing as $LATEST_IMAGE"
+          skopeo copy --insecure-policy --dest-creds \
+          $DOCKERHUB_USER:$DOCKERHUB_PASSWORD \
+          docker-archive:oci.tar \
+          docker://$LATEST_IMAGE
   goreleaser:
     runs-on: ubuntu-latest
     steps:
