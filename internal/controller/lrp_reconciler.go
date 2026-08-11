@@ -84,10 +84,8 @@ func (r *LRPReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 	restarted := 0
 	for _, result := range results {
 		if result.Err != nil {
-			log.Error(result.Err, "error checking node", "node", result.NodeName, "pod", result.PodName)
-			continue
-		}
-		if result.IsRedirect {
+			log.Info("error checking node via exec, attempting cilium agent restart to unblock node", "node", result.NodeName, "pod", result.PodName, "error", result.Err)
+		} else if result.IsRedirect {
 			log.Info("already applied", "node", result.NodeName)
 			continue
 		}
