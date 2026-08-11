@@ -66,12 +66,12 @@ func (m *Manager) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result,
 		return ctrl.Result{}, err
 	}
 
-	// Check if the Cluster has the required label.
+	// Check if the Cluster is being deleted or missing the required label.
 	labelKey := m.LabelKey
 	if labelKey == "" {
 		labelKey = DefaultLabelSelector
 	}
-	if cluster.Labels[labelKey] != "true" {
+	if !cluster.DeletionTimestamp.IsZero() || cluster.Labels[labelKey] != "true" {
 		m.stopWatcher(key, log)
 		return ctrl.Result{}, nil
 	}
@@ -122,7 +122,7 @@ func (m *Manager) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result,
 		m.watchers.Delete(key)
 	}()
 
-	return ctrl.Result{RequeueAfter: 30 * time.Second}, nil
+	return ctrl.Result{}, nil
 }
 
 func (m *Manager) stopWatcher(key string, log interface{ Info(string, ...any) }) {
