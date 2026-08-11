@@ -16,7 +16,7 @@ import (
 )
 
 // LRPReconcilerFactory creates an LRPReconciler for a given tenant cluster.
-type LRPReconcilerFactory func(c client.Client, clientset kubernetes.Interface, restConfig *rest.Config) *controller.LRPReconciler
+type LRPReconcilerFactory func(c client.Client, clientset kubernetes.Interface, restConfig *rest.Config, clusterName string) *controller.LRPReconciler
 
 type Watcher struct {
 	// ClusterName is the "<namespace>/<name>" of the CAPI Cluster.
@@ -59,7 +59,7 @@ func (w *Watcher) Start(ctx context.Context) error {
 		factory = controller.NewLRPReconciler
 	}
 
-	reconciler := factory(tenantMgr.GetClient(), w.Clientset, w.RESTConfig)
+	reconciler := factory(tenantMgr.GetClient(), w.Clientset, w.RESTConfig, w.ClusterName)
 	if err := reconciler.SetupWithManager(tenantMgr); err != nil {
 		return fmt.Errorf("setting up LRP reconciler for %s: %w", w.ClusterName, err)
 	}
