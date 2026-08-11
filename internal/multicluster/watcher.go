@@ -11,6 +11,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 
 	"github.com/rpcu/dike/internal/controller"
 )
@@ -45,7 +46,7 @@ func (w *Watcher) Start(ctx context.Context) error {
 	tenantMgr, err := ctrl.NewManager(w.RESTConfig, ctrl.Options{
 		Scheme: scheme,
 
-		Metrics:                ctrl.Options{}.Metrics,
+		Metrics: metricsserver.Options{BindAddress: "0"},
 		HealthProbeBindAddress: "",
 
 		LeaderElection: false,
