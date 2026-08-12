@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"sync"
+	"time"
 
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -115,10 +116,24 @@ func (m *Manager) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result,
 
 	log.Info("Starting watcher for tenant cluster", "cluster", key)
 	go func() {
-		if err := watcher.Start(watcherCtx); err != nil {
-			log.Error(err, "Watcher stopped with error, will retry", "cluster", key)
+		defer m.watchers.Delete(key)
+		for {
+			if watcherCtx.Err() != nil {
+				log.Info("Watcher stopped", "cluster", key)
+				return
+			}
+			err := watcher.Start(watcherCtx)
+			if err == nil || watcherCtx.Err() != nil {
+				log.Info("Watcher stopped cleanly", "cluster", key)
+				return
+			}
+			log.Error(err, "Watcher stopped with error, retrying in 15s...", "cluster", key)
+			select {
+			case <-watcherCtx.Done():
+				return
+			case <-time.After(15 * time.Second):
+			}
 		}
-		m.watchers.Delete(key)
 	}()
 
 	return ctrl.Result{}, nil
